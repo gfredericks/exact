@@ -1,5 +1,6 @@
 (ns com.gfredericks.exact.impl
-  "clj-jvm impl.")
+  "clj-jvm impl."
+  (:refer-clojure :exclude [=]))
 
 (defn ^:private exact?
   [x]
@@ -18,3 +19,8 @@
   [x]
   {:pre [(exact? x)]}
   (-' x))
+
+(defn =
+  [x y]
+  {:pre [(exact? x) (exact? y)]}
+  (clojure.core/= x y))
