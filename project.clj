@@ -23,7 +23,5 @@
                                 :optimizations :simple
                                 :target :nodejs}}}
                      :test-commands
-                     ;; whoops how do we do pwd here? maybe just
-                     ;; nevermind automating this call...
                      {"all" ["bin/node" "target/cljsbuild/out.js"]}}}}
   )
