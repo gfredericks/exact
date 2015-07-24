@@ -10,7 +10,7 @@
   :aliases {"test" ["test" "com.gfredericks.exact-test"]}
 
 
-  :profiles {:dev [{:dependencies [[org.clojure/test.check "0.8.0-alpha3"]]}
+  :profiles {:dev [{:dependencies [[org.clojure/test.check "0.8.0-RC1"]]}
                    :cljs]
              :cljs {:dependencies [[org.clojure/clojurescript "0.0-3308"]]
                     :plugins [[lein-cljsbuild "1.0.6"]]
