@@ -17,6 +17,7 @@
   (int/fromString s))
 
 (def additive-identity (hacky-bigint "0"))
+(def multiplicative-identity (hacky-bigint "1"))
 
 (defn add
   [x y]
@@ -32,3 +33,13 @@
   [x y]
   {:pre [(exact? x) (exact? y)]}
   (.equals x y))
+
+(defn multiply
+  [x y]
+  {:pre [(exact? x) (exact? y)]}
+  (.multiply x y))
+
+(defn invert
+  [x]
+  {:pre [(exact? x)]}
+  (.invert x))

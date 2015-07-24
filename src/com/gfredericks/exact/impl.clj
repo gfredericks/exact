@@ -9,6 +9,7 @@
       (instance? clojure.lang.Ratio x)))
 
 (def additive-identity 0)
+(def multiplicative-identity 1)
 
 (defn add
   [x y]
@@ -24,3 +25,13 @@
   [x y]
   {:pre [(exact? x) (exact? y)]}
   (clojure.core/= x y))
+
+(defn multiply
+  [x y]
+  {:pre [(exact? x) (exact? y)]}
+  (*' x y))
+
+(defn invert
+  [x]
+  {:pre [(exact? x)]}
+  (/ x))

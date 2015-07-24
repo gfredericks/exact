@@ -31,3 +31,15 @@
   (prop/for-all [x gen-exact
                  y gen-exact]
     (exact/= (exact/+ x y) (exact/+ y x))))
+
+(defspec associativity-of-multiplication 1000
+  (prop/for-all [x gen-exact
+                 y gen-exact
+                 z gen-exact]
+    (exact/= (exact/* x (exact/* y z))
+             (exact/* (exact/* x y) z))))
+
+(defspec commutativity-of-multiplication 1000
+  (prop/for-all [x gen-exact
+                 y gen-exact]
+    (exact/= (exact/* x y) (exact/* y x))))
