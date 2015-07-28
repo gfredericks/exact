@@ -1,5 +1,5 @@
 (ns com.gfredericks.exact
-  (:refer-clojure :exclude [+ - * / = zero?])
+  (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec min max min-key max-key])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
@@ -38,3 +38,70 @@
 (defn zero?
   [x]
   (= x impl/ZERO))
+
+(defn inc [x] (+ x impl/ONE))
+(defn dec [x] (- x impl/ONE))
+
+(defn <
+  ([x] true)
+  ([x y] (neg? (impl/compare x y)))
+  ([x y & more]
+   (if (< x y)
+     (if (next more)
+       (recur y (first more) (next more))
+       (< y (first more)))
+     false)))
+
+(defn >
+  ([x] true)
+  ([x y] (pos? (impl/compare x y)))
+  ([x y & more]
+   (if (> x y)
+     (if (next more)
+       (recur y (first more) (next more))
+       (> y (first more)))
+     false)))
+
+(defn <=
+  ([x] true)
+  ([x y] (not (pos? (impl/compare x y))))
+  ([x y & more]
+   (if (<= x y)
+     (if (next more)
+       (recur y (first more) (next more))
+       (<= y (first more)))
+     false)))
+
+(defn >=
+  ([x] true)
+  ([x y] (not (neg? (impl/compare x y))))
+  ([x y & more]
+   (if (>= x y)
+     (if (next more)
+       (recur y (first more) (next more))
+       (>= y (first more)))
+     false)))
+
+(defn max
+  ([x] x)
+  ([x y] (if (> x y) x y))
+  ([x y & more]
+     (reduce max (max x y) more)))
+
+(defn min
+  ([x] x)
+  ([x y] (if (< x y) x y))
+  ([x y & more]
+     (reduce min (min x y) more)))
+
+(defn min-key
+  ([k x] x)
+  ([k x y] (if (< (k x) (k y)) x y))
+  ([k x y & more]
+   (reduce #(min-key k %1 %2) (min-key k x y) more)))
+
+(defn max-key
+  ([k x] x)
+  ([k x y] (if (> (k x) (k y)) x y))
+  ([k x y & more]
+   (reduce #(max-key k %1 %2) (max-key k x y) more)))

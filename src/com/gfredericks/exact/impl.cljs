@@ -82,7 +82,10 @@
   IEquiv
   (-equiv
     [x y]
-    (zero? (.compare x y))))
+    (zero? (.compare x y)))
+  IComparable
+  (-compare [x y]
+    (-compare x y)))
 
 (defn gcd
   [x y]
@@ -94,6 +97,10 @@
   ;; "Ratios should not be constructed directly by user code; we assume n and d are
   ;;  canonical; i.e., they are coprime and at most n is negative."
   [n d]
+  Object
+  (toString [_]
+    (str "#ratio [" n " " d "]"))
+
   Add
   (-add [x y] (-add-with-ratio y x))
   AddWithInteger
@@ -142,7 +149,10 @@
   (-equiv [_ other]
     (and (instance? Ratio other)
          (cljs/= n (.-n other))
-         (cljs/= d (.-d other)))))
+         (cljs/= d (.-d other))))
+  IComparable
+  (-compare [x y]
+    (-compare x y)))
 
 (def ZERO (bigint 0))
 (def ONE (bigint 1))

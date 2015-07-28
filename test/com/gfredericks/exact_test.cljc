@@ -52,3 +52,21 @@
   (prop/for-all [x gen-exact
                  y gen-exact]
     (= (exact/* x y) (exact/* y x))))
+
+(defspec inc-is-always-different 100
+  (prop/for-all [x gen-exact] (-> x exact/inc (not= x))))
+
+(defspec dec-is-always-different 100
+  (prop/for-all [x gen-exact] (-> x exact/dec (not= x))))
+
+(defspec inc-dec-is-identity 100
+  (prop/for-all [x gen-exact] (-> x exact/inc exact/dec (= x))))
+
+(defspec dec-inc-is-identity 100
+  (prop/for-all [x gen-exact] (-> x exact/dec exact/inc (= x))))
+
+(defspec inc-is-greater 100
+  (prop/for-all [x gen-exact] (exact/< x (exact/inc x))))
+
+(defspec dec-is-lesser 100
+  (prop/for-all [x gen-exact] (exact/< (exact/dec x) x)))
