@@ -11,35 +11,44 @@
                        [cljs.test.check]])
             [com.gfredericks.exact :as exact]))
 
+(def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9])
+
+(def gen-integer
+  (gen/bind gen/nat
+            (fn [digit-count]
+              (gen/fmap (fn [[f the-digits]]
+                          (f (exact/->integer (apply str the-digits))))
+                        (gen/tuple (gen/elements [exact/+ exact/-])
+                                   (gen/vector (gen/elements digits) (inc digit-count)))))))
+
+(def gen-ratio
+  (gen/fmap (fn [[n d]] (exact// n d))
+            (gen/tuple gen-integer
+                       (gen/such-that (complement exact/zero?) gen-integer))))
+
 (def gen-exact
-  ;; TODO: embetter
-  #?(:clj
-     (gen/one-of [gen/int gen/ratio])
+  (gen/one-of [gen-integer gen-ratio]))
 
-     :cljs
-     (gen/fmap (comp impl/hacky-bigint str)
-               gen/int)))
-
-(defspec associativity-of-addition 1000
+(defspec associativity-of-addition 100
   (prop/for-all [x gen-exact
                  y gen-exact
                  z gen-exact]
-    (exact/= (exact/+ x (exact/+ y z))
-             (exact/+ (exact/+ x y) z))))
+    (= (exact/+ x (exact/+ y z))
+       (exact/+ (exact/+ x y) z))))
 
-(defspec commutativity-of-addition 1000
+(defspec commutativity-of-addition 100
   (prop/for-all [x gen-exact
                  y gen-exact]
-    (exact/= (exact/+ x y) (exact/+ y x))))
+    (= (exact/+ x y) (exact/+ y x))))
 
-(defspec associativity-of-multiplication 1000
+(defspec associativity-of-multiplication 100
   (prop/for-all [x gen-exact
                  y gen-exact
                  z gen-exact]
-    (exact/= (exact/* x (exact/* y z))
-             (exact/* (exact/* x y) z))))
+    (= (exact/* x (exact/* y z))
+       (exact/* (exact/* x y) z))))
 
-(defspec commutativity-of-multiplication 1000
+(defspec commutativity-of-multiplication 100
   (prop/for-all [x gen-exact
                  y gen-exact]
-    (exact/= (exact/* x y) (exact/* y x))))
+    (= (exact/* x y) (exact/* y x))))

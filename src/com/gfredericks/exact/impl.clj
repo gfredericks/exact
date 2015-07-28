@@ -1,6 +1,7 @@
 (ns com.gfredericks.exact.impl
   "clj-jvm impl."
-  (:refer-clojure :exclude [=]))
+  (:refer-clojure :exclude [= compare])
+  (:import java.math.BigInteger))
 
 (defn ^:private exact?
   [x]
@@ -8,8 +9,8 @@
       (instance? clojure.lang.BigInt x)
       (instance? clojure.lang.Ratio x)))
 
-(def additive-identity 0)
-(def multiplicative-identity 1)
+(def ^:const ZERO 0)
+(def ^:const ONE 1)
 
 (defn add
   [x y]
@@ -35,3 +36,12 @@
   [x]
   {:pre [(exact? x)]}
   (/ x))
+
+(defn compare
+  [x y]
+  {:pre [(exact? x) (exact? y)]}
+  (clojure.core/compare x y))
+
+(defn ->integer
+  [^String s]
+  (bigint (BigInteger. s)))

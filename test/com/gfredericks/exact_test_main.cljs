@@ -1,15 +1,12 @@
 (ns com.gfredericks.exact-test-main
-  (:require [clojure.string :as string]
-            [cljs.test]
+  (:require [cljs.nodejs :as nodejs]
+            [cljs.test :as test :refer-macros [run-tests]]
             [com.gfredericks.exact-test]))
 
-(cljs.test/deftest holle
-  (cljs.test/is (= 41 (* 2 3 7))))
+(nodejs/enable-util-print!)
 
-(defn ^:export -main
-  []
-  (cljs.test/run-tests 'com.gfredericks.exact-test)
-  )
+(defn -main []
+  (run-tests
+    'com.gfredericks.exact-test))
 
-(set! *print-fn* #(.log js/console (string/trim %)))
-(set! cljs.core/*main-cli-fn* -main)
+(set! *main-cli-fn* -main)

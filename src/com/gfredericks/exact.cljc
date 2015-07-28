@@ -1,10 +1,10 @@
 (ns com.gfredericks.exact
-  (:refer-clojure :exclude [+ - * / =])
+  (:refer-clojure :exclude [+ - * / = zero?])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
 (defn +
-  ([] impl/additive-identity)
+  ([] impl/ZERO)
   ([x] x)
   ([x y] (impl/add x y))
   ([x y & zs] (reduce impl/add (impl/add x y) zs)))
@@ -16,12 +16,12 @@
 
 (defn =
   ([x] true)
-  ([x y] (impl/= x y))
-  ([x y & zs] (and (impl/= x y)
-                   (every? #(impl/= y %) zs))))
+  ([x y] (core/zero? (impl/compare x y)))
+  ([x y & zs] (and (= x y)
+                   (every? #(= y %) zs))))
 
 (defn *
-  ([] impl/multiplicative-identity)
+  ([] impl/ONE)
   ([x] x)
   ([x y] (impl/multiply x y))
   ([x y & zs] (reduce impl/multiply (impl/multiply x y) zs)))
@@ -30,3 +30,11 @@
   ([x] (impl/invert x))
   ([x y] (impl/multiply x (impl/invert y)))
   ([x y & zs] (impl/multiply x (impl/invert (reduce impl/multiply y zs)))))
+
+(defn ->integer
+  [s]
+  (impl/->integer s))
+
+(defn zero?
+  [x]
+  (= x impl/ZERO))

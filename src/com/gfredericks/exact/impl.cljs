@@ -1,7 +1,8 @@
 (ns com.gfredericks.exact.impl
   "cljs impl."
-  (:refer-clojure :exclude [=])
-  (:require [goog.math.Integer :as int]))
+  (:refer-clojure :exclude [= -compare compare])
+  (:require [cljs.core :as cljs]
+            [goog.math.Integer :as int]))
 
 (defn bigint?
   [x]
@@ -12,6 +13,8 @@
   (if (bigint? x)
     x
     (int/fromString (str x))))
+
+(def hacky-bigint bigint)
 
 (defprotocol Add
   (-add [x y]))
@@ -74,7 +77,12 @@
   CompareToRatio
   (-compare-to-ratio
     [x y]
-    (-compare-to-ratio (ratio x) y)))
+    (-compare-to-ratio (ratio x) y))
+
+  IEquiv
+  (-equiv
+    [x y]
+    (zero? (.compare x y))))
 
 (defn gcd
   [x y]
@@ -128,7 +136,13 @@
   (-compare-to-ratio [x y]
     (let [* -multiply-with-integer]
       (-compare-to-integer (* (.-n x) (.-d y))
-                           (* (.-n y) (.-d x))))))
+                           (* (.-n y) (.-d x)))))
+
+  IEquiv
+  (-equiv [_ other]
+    (and (instance? Ratio other)
+         (cljs/= n (.-n other))
+         (cljs/= d (.-d other)))))
 
 (def ZERO (bigint 0))
 (def ONE (bigint 1))
@@ -168,3 +182,7 @@
 (defn compare
   [x y]
   (-compare x y))
+
+(defn ->integer
+  [s]
+  (int/fromString s))
