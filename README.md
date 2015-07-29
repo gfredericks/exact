@@ -3,6 +3,12 @@
 A work-in-progress clojure library for doing portable exact
 arithmetic.
 
+## Obtention
+
+``` clojure
+[com.gfredericks/exact "0.1.0-SNAPSHOT"]
+```
+
 ## License
 
 Copyright © 2015 Gary Fredericks
