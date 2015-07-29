@@ -1,7 +1,11 @@
 (ns com.gfredericks.exact
-  (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec min max min-key max-key])
+  (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec
+                            min max min-key max-key pos? neg?])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
+
+(def ZERO impl/ZERO)
+(def ONE impl/ONE)
 
 (defn +
   ([] impl/ZERO)
@@ -44,7 +48,7 @@
 
 (defn <
   ([x] true)
-  ([x y] (neg? (impl/compare x y)))
+  ([x y] (core/neg? (impl/compare x y)))
   ([x y & more]
    (if (< x y)
      (if (next more)
@@ -54,7 +58,7 @@
 
 (defn >
   ([x] true)
-  ([x y] (pos? (impl/compare x y)))
+  ([x y] (core/pos? (impl/compare x y)))
   ([x y & more]
    (if (> x y)
      (if (next more)
@@ -64,7 +68,7 @@
 
 (defn <=
   ([x] true)
-  ([x y] (not (pos? (impl/compare x y))))
+  ([x y] (not (core/pos? (impl/compare x y))))
   ([x y & more]
    (if (<= x y)
      (if (next more)
@@ -74,7 +78,7 @@
 
 (defn >=
   ([x] true)
-  ([x y] (not (neg? (impl/compare x y))))
+  ([x y] (not (core/neg? (impl/compare x y))))
   ([x y & more]
    (if (>= x y)
      (if (next more)
@@ -105,3 +109,6 @@
   ([k x y] (if (> (k x) (k y)) x y))
   ([k x y & more]
    (reduce #(max-key k %1 %2) (max-key k x y) more)))
+
+(defn pos? [x] (< ZERO x))
+(defn neg? [x] (< x ZERO))

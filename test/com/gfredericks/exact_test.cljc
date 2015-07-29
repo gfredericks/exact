@@ -69,3 +69,15 @@
 
 (defspec dec-is-lesser 100
   (prop/for-all [x gen-exact] (exact/< (exact/dec x) x)))
+
+(defspec x-plus-minus-x-is-zero 100
+  (prop/for-all [x gen-exact]
+    (-> x exact/- (exact/+ x) (= exact/ZERO))))
+
+(defspec x-times-one-over-x-is-one 100
+  (prop/for-all [x (gen/such-that (complement exact/zero?) gen-exact)]
+    (-> x exact// (exact/* x) (= exact/ONE))))
+
+(defspec x-times-x-is-non-negative 100
+  (prop/for-all [x gen-exact]
+    (-> x (exact/* x) (exact/neg?) (not))))
