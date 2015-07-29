@@ -7,8 +7,7 @@
                 :cljs cljs.test.check.generators) :as gen]
             [#?(:clj clojure.test.check.properties
                 :cljs cljs.test.check.properties) :as prop]
-            #?@(:cljs [[com.gfredericks.exact.impl :as impl]
-                       [cljs.test.check]])
+            #?(:cljs [cljs.test.check])
             [com.gfredericks.exact :as exact]))
 
 (def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9])
