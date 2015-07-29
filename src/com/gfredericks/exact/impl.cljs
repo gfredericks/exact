@@ -1,20 +1,12 @@
 (ns com.gfredericks.exact.impl
   "cljs impl."
-  (:refer-clojure :exclude [= -compare compare numerator denominator])
+  (:refer-clojure :exclude [= -compare compare numerator denominator integer?])
   (:require [cljs.core :as cljs]
             [goog.math.Integer :as int]))
 
-(defn bigint?
+(defn integer?
   [x]
   (instance? goog.math.Integer x))
-
-(defn bigint
-  [x]
-  (if (bigint? x)
-    x
-    (int/fromString (str x))))
-
-(def hacky-bigint bigint)
 
 (defprotocol Add
   (-add [x y]))
@@ -171,8 +163,8 @@
     (-compare x y)))
 
 
-(def ZERO (bigint 0))
-(def ONE (bigint 1))
+(def ZERO int/ZERO)
+(def ONE int/ONE)
 
 (defn ratio?
   [x]

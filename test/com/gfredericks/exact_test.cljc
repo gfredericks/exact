@@ -100,3 +100,16 @@
       (-> (exact// (exact/inc x) x)
           (exact/denominator)
           (= x)))))
+
+(defspec integer-and-ratio-work 100
+  (prop/for-all [x gen-exact]
+    (let [b1 (exact/integer? x)
+          b2 (exact/ratio? x)]
+      (and (or b1 b2)
+           (not (and b1 b2))))))
+
+(defspec num-and-dem-return-integers 100
+  (prop/for-all [x gen-exact]
+    (or (exact/integer? x)
+        (and (-> x exact/numerator exact/integer?)
+             (-> x exact/denominator exact/integer?)))))
