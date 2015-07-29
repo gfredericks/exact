@@ -20,13 +20,18 @@
                         (gen/tuple (gen/elements [exact/+ exact/-])
                                    (gen/vector (gen/elements digits) (inc digit-count)))))))
 
+(def gen-integer-nonzero
+  (gen/such-that (complement exact/zero?) gen-integer))
+
 (def gen-ratio
   (gen/fmap (fn [[n d]] (exact// n d))
-            (gen/tuple gen-integer
-                       (gen/such-that (complement exact/zero?) gen-integer))))
+            (gen/tuple gen-integer gen-integer-nonzero)))
 
 (def gen-exact
   (gen/one-of [gen-integer gen-ratio]))
+
+(def gen-exact-nonzero
+  (gen/such-that (complement exact/zero?) gen-exact))
 
 (defspec associativity-of-addition 100
   (prop/for-all [x gen-exact
@@ -75,9 +80,23 @@
     (-> x exact/- (exact/+ x) (= exact/ZERO))))
 
 (defspec x-times-one-over-x-is-one 100
-  (prop/for-all [x (gen/such-that (complement exact/zero?) gen-exact)]
+  (prop/for-all [x gen-exact-nonzero]
     (-> x exact// (exact/* x) (= exact/ONE))))
 
 (defspec x-times-x-is-non-negative 100
   (prop/for-all [x gen-exact]
     (-> x (exact/* x) (exact/neg?) (not))))
+
+(defspec numerator-works 100
+  (prop/for-all [x gen-integer-nonzero]
+    (let [x (-> x exact/abs exact/inc)]
+      (-> (exact// (exact/inc x) x)
+          (exact/numerator)
+          (= (exact/inc x))))))
+
+(defspec denominator-works 100
+  (prop/for-all [x gen-integer-nonzero]
+    (let [x (-> x exact/abs exact/inc)]
+      (-> (exact// (exact/inc x) x)
+          (exact/denominator)
+          (= x)))))

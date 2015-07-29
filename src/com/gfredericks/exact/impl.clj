@@ -1,6 +1,6 @@
 (ns com.gfredericks.exact.impl
   "clj-jvm impl."
-  (:refer-clojure :exclude [= compare])
+  (:refer-clojure :exclude [= compare numerator denominator])
   (:import java.math.BigInteger))
 
 (defn ^:private exact?
@@ -45,3 +45,6 @@
 (defn ->integer
   [^String s]
   (bigint (BigInteger. s)))
+
+(def numerator clojure.core/numerator)
+(def denominator clojure.core/denominator)

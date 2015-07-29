@@ -1,6 +1,7 @@
 (ns com.gfredericks.exact
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec
-                            min max min-key max-key pos? neg?])
+                            min max min-key max-key pos? neg?
+                            numerator denominator])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
@@ -112,3 +113,10 @@
 
 (defn pos? [x] (< ZERO x))
 (defn neg? [x] (< x ZERO))
+
+(def numerator impl/numerator)
+(def denominator impl/denominator)
+
+(defn abs
+  [x]
+  (cond-> x (neg? x) (-)))

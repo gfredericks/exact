@@ -1,6 +1,6 @@
 (ns com.gfredericks.exact.impl
   "cljs impl."
-  (:refer-clojure :exclude [= -compare compare])
+  (:refer-clojure :exclude [= -compare compare numerator denominator])
   (:require [cljs.core :as cljs]
             [goog.math.Integer :as int]))
 
@@ -201,3 +201,13 @@
 (defn ->integer
   [s]
   (int/fromString s))
+
+(defn numerator
+  [x]
+  {:pre [(ratio? x)]}
+  (.-n x))
+
+(defn denominator
+  [x]
+  {:pre [(ratio? x)]}
+  (.-d x))
