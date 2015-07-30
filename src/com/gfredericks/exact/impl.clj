@@ -10,37 +10,51 @@
       (instance? clojure.lang.BigInt x)
       (instance? clojure.lang.Ratio x)))
 
+(defmacro validate-exact
+  [arg]
+  (when *assert*
+    `(let [arg# ~arg]
+       (when-not (or (instance? Long arg#)
+                     (instance? clojure.lang.BigInt arg#)
+                     (instance? clojure.lang.Ratio arg#))
+         (throw (ex-info "Bad argument type!"
+                         {:arg arg#}))))))
+
 (def ^:const ZERO 0)
 (def ^:const ONE 1)
 
 (defn add
   [x y]
-  {:pre [(exact? x) (exact? y)]}
+  (validate-exact x)
+  (validate-exact y)
   (+' x y))
 
 (defn negate
   [x]
-  {:pre [(exact? x)]}
+  (validate-exact x)
   (-' x))
 
 (defn =
   [x y]
-  {:pre [(exact? x) (exact? y)]}
+  (validate-exact x)
+  (validate-exact y)
   (clojure.core/= x y))
 
 (defn multiply
   [x y]
-  {:pre [(exact? x) (exact? y)]}
+  (validate-exact x)
+  (validate-exact y)
   (*' x y))
 
 (defn invert
   [x]
-  {:pre [(exact? x)]}
+  (validate-exact x)
   (/ x))
 
 (defn compare
   [x y]
-  {:pre [(exact? x) (exact? y)]}
+  (validate-exact x)
+  (validate-exact y)
   (clojure.core/compare x y))
 
 (defn string->integer
