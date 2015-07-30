@@ -179,3 +179,9 @@
   (prop/for-all [x gen-exact
                  y gen-exact]
     (= (= x y) (= y x))))
+
+(defspec zero-pos-neg-are-disjoint-and-complete
+  (prop/for-all [x gen-exact]
+    (= 1 (+ (if (exact/neg? x) 1 0)
+            (if (exact/zero? x) 1 0)
+            (if (exact/pos? x) 1 0)))))
