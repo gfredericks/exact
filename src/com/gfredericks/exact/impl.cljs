@@ -1,7 +1,7 @@
 (ns com.gfredericks.exact.impl
   "cljs impl."
   (:refer-clojure :exclude [= -compare compare numerator denominator integer?
-                            mod quot])
+                            mod rem quot])
   (:require [cljs.core :as cljs]
             [goog.math.Integer :as int]))
 
@@ -214,7 +214,12 @@
   {:pre [(integer? x) (integer? n)]}
   (.divide x n))
 
-(defn mod
+(defn rem
   [x n]
   {:pre [(integer? x) (integer? n)]}
   (.modulo x n))
+
+(defn mod
+  [x n]
+  (let [y (rem x n)]
+    (cond-> y (.isNegative y) (.add n))))

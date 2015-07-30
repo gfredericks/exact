@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec
                             min max min-key max-key pos? neg?
                             numerator denominator integer? ratio?
-                            mod quot])
+                            mod rem quot])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
@@ -115,6 +115,17 @@
 (def denominator impl/denominator)
 (def integer? impl/integer?)
 (def ratio? impl/ratio?)
+(def quot impl/quot)
+
+(defn mod
+  [x n]
+  {:pre [(pos? n)]}
+  (impl/mod x n))
+
+(defn rem
+  [x n]
+  {:pre [(pos? n)]}
+  (impl/rem x n))
 
 (defn abs
   [x]
@@ -127,6 +138,3 @@
 (defn integer->string
   ([n] (integer->string n 10))
   ([n radix] (impl/integer->string n radix)))
-
-(def quot impl/quot)
-(def mod impl/mod)

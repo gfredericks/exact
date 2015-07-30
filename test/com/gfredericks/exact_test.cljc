@@ -124,10 +124,16 @@
         (exact/string->integer radix)
         (= x))))
 
-(defspec quot-and-mod 100
+(defspec quot-and-rem 100
   (prop/for-all [x gen-integer
-                 n gen-integer-nonzero]
-    (let [n (exact/abs n)
-          the-quot (exact/quot x n)
-          the-mod (exact/mod x n)]
-      (= x (exact/+ the-mod (exact/* the-quot n))))))
+                 n (gen/fmap exact/abs gen-integer-nonzero)]
+    (let [the-quot (exact/quot x n)
+          the-rem (exact/rem x n)]
+      (= x (exact/+ the-rem (exact/* the-quot n))))))
+
+(defspec mod-never-negative 100
+  (prop/for-all [x gen-integer
+                 n (gen/fmap exact/abs gen-integer-nonzero)]
+    (exact/<= exact/ZERO
+              (exact/mod x n)
+              (exact/dec n))))
