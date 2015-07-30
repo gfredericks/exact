@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec
                             min max min-key max-key pos? neg?
                             numerator denominator integer? ratio?
-                            mod rem quot])
+                            mod rem quot even? odd?])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
@@ -131,6 +131,15 @@
   [x]
   (cond-> x (neg? x) (-)))
 
+(let [TWO (+ ONE ONE)]
+  (defn even?
+    [n]
+    (zero? (mod n TWO)))
+
+  (defn odd?
+    [n]
+    (= ONE (mod n TWO))))
+
 (defn string->integer
   ([s] (string->integer s 10))
   ([s radix] (impl/string->integer s radix)))
@@ -138,3 +147,6 @@
 (defn integer->string
   ([n] (integer->string n 10))
   ([n radix] (impl/integer->string n radix)))
+
+(def native->integer impl/native->integer)
+(def integer->native impl/integer->native)

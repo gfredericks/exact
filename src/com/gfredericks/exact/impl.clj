@@ -58,3 +58,18 @@
 (def quot clojure.core/quot)
 (def mod clojure.core/mod)
 (def rem clojure.core/rem)
+
+(defn native-integer?
+  [n]
+  (instance? Long n))
+
+(defn native->integer
+  [num]
+  {:pre [(native-integer? num)]}
+  num)
+
+(defn integer->native
+  [x]
+  {:pre [(exact? x)
+         (<= Long/MIN_VALUE x Long/MAX_VALUE)]}
+  (long x))

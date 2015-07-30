@@ -223,3 +223,27 @@
   [x n]
   (let [y (rem x n)]
     (cond-> y (.isNegative y) (.add n))))
+
+(def two-to-fifty-three
+  (apply * (repeat 53 2)))
+
+(def minus-two-to-fifty-three
+  (- two-to-fifty-three))
+
+(defn native-integer?
+  [num]
+  (and (number? num)
+       (<= minus-two-to-fifty-three
+           num
+           two-to-fifty-three)
+       (cljs/integer? num)))
+
+(defn native->integer
+  [num]
+  {:pre [(native-integer? num)]}
+  (int/fromNumber num))
+
+(defn integer->native
+  [x]
+  {:post [(native-integer? %)]}
+  (.toNumber x))

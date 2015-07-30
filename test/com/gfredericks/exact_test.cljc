@@ -137,3 +137,28 @@
     (exact/<= exact/ZERO
               (exact/mod x n)
               (exact/dec n))))
+
+(defspec everything-is-even-or-odd 100
+  (prop/for-all [x gen-integer]
+    (or (exact/even? x)
+        (exact/odd? x))))
+
+(defspec plus-one-inverts-parity 100
+  (prop/for-all [x gen-integer]
+    (let [x1 (exact/inc x)]
+      (not= (exact/even? x)
+            (exact/even? x1)))))
+
+(defspec plus-two-preserves-parity 100
+  (prop/for-all [x gen-integer]
+    (let [x1 (-> x exact/inc exact/inc)]
+      (= (exact/even? x)
+         (exact/even? x1)))))
+
+(defspec native-conversion 100
+  (prop/for-all [num (gen/choose -1000000000000
+                                 1000000000000)]
+    (let [n (exact/native->integer num)]
+      (and (exact/integer? n)
+           (= (str num) (exact/integer->string n))
+           (= num (exact/integer->native n))))))
