@@ -1,6 +1,7 @@
 (ns com.gfredericks.exact.impl
   "clj-jvm impl."
-  (:refer-clojure :exclude [= compare numerator denominator integer? ratio?])
+  (:refer-clojure :exclude [= compare numerator denominator integer? ratio?
+                            quot mod])
   (:import java.math.BigInteger))
 
 (defn ^:private exact?
@@ -42,11 +43,17 @@
   {:pre [(exact? x) (exact? y)]}
   (clojure.core/compare x y))
 
-(defn ->integer
-  [^String s]
-  (bigint (BigInteger. s)))
+(defn string->integer
+  [^String s radix]
+  (bigint (BigInteger. s (int radix))))
+
+(defn integer->string
+  [n radix]
+  (.toString (biginteger n) radix))
 
 (def numerator clojure.core/numerator)
 (def denominator clojure.core/denominator)
 (def integer? clojure.core/integer?)
 (def ratio? clojure.core/ratio?)
+(def quot clojure.core/quot)
+(def mod clojure.core/mod)

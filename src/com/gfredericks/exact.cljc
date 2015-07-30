@@ -1,7 +1,8 @@
 (ns com.gfredericks.exact
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec
                             min max min-key max-key pos? neg?
-                            numerator denominator integer? ratio?])
+                            numerator denominator integer? ratio?
+                            mod quot])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
@@ -35,10 +36,6 @@
   ([x] (impl/invert x))
   ([x y] (impl/multiply x (impl/invert y)))
   ([x y & zs] (impl/multiply x (impl/invert (reduce impl/multiply y zs)))))
-
-(defn ->integer
-  [s]
-  (impl/->integer s))
 
 (defn zero?
   [x]
@@ -122,3 +119,14 @@
 (defn abs
   [x]
   (cond-> x (neg? x) (-)))
+
+(defn string->integer
+  ([s] (string->integer s 10))
+  ([s radix] (impl/string->integer s radix)))
+
+(defn integer->string
+  ([n] (integer->string n 10))
+  ([n radix] (impl/integer->string n radix)))
+
+(def quot impl/quot)
+(def mod impl/mod)
