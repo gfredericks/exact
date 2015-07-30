@@ -65,8 +65,8 @@
   [n radix]
   (.toString (biginteger n) radix))
 
-(def numerator clojure.core/numerator)
-(def denominator clojure.core/denominator)
+(def numerator (comp bigint clojure.core/numerator))
+(def denominator (comp bigint clojure.core/denominator))
 (def integer? clojure.core/integer?)
 (def ratio? clojure.core/ratio?)
 (def quot clojure.core/quot)
