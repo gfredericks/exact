@@ -162,3 +162,20 @@
       (and (exact/integer? n)
            (= (str num) (exact/integer->string n))
            (= num (exact/integer->native n))))))
+
+(defspec IComparable-impl-works 100
+  (prop/for-all [xs (gen/list gen-exact)]
+    (->> xs
+         (sort)
+         (partition 2 1)
+         (every? (fn [[x y]]
+                   (exact/<= x y))))))
+
+(defspec =-is-reflexive 100
+  (prop/for-all [x gen-exact]
+    (= x x)))
+
+(defspec =-is-symmetric 100
+  (prop/for-all [x gen-exact
+                 y gen-exact]
+    (= (= x y) (= y x))))

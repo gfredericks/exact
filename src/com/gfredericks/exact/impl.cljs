@@ -158,7 +158,7 @@
   IEquiv
   (-equiv
     [x y]
-    (zero? (.compare x y)))
+    (and (integer? y) (.equals x y)))
   IComparable
   (-compare [x y]
     (-compare x y)))
