@@ -1,4 +1,4 @@
-(defproject com.gfredericks/exact "0.1.3"
+(defproject com.gfredericks/exact "0.1.4-SNAPSHOT"
   :description "Portable exact arithmetic in Clojure"
   :url "https://github.com/gfredericks/exact"
   :license {:name "Eclipse Public License"
