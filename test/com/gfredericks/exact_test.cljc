@@ -180,8 +180,20 @@
                  y gen-exact]
     (= (= x y) (= y x))))
 
-(defspec zero-pos-neg-are-disjoint-and-complete
+(defspec zero-pos-neg-are-disjoint-and-complete 100
   (prop/for-all [x gen-exact]
     (= 1 (+ (if (exact/neg? x) 1 0)
             (if (exact/zero? x) 1 0)
             (if (exact/pos? x) 1 0)))))
+
+(def gen-unique-numbers-via-group-by
+  (gen/fmap (fn [xs]
+              (->> xs
+                   (group-by identity)
+                   (vals)
+                   (map first)))
+            (gen/not-empty (gen/list gen-exact))))
+
+(defspec work-correctly-as-map-keys 50
+  (prop/for-all [xs gen-unique-numbers-via-group-by]
+    (apply distinct? (map str xs))))

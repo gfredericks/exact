@@ -113,6 +113,9 @@
     (and (instance? Ratio other)
          (cljs/= n (.-n other))
          (cljs/= d (.-d other))))
+  IHash
+  (-hash [_]
+    (bit-xor 124790411 (-hash n) (-hash d)))
   IComparable
   (-compare [x y]
     (-compare x y)))
@@ -159,6 +162,11 @@
   (-equiv
     [x y]
     (and (integer? y) (.equals x y)))
+  IHash
+  (-hash
+    [self]
+    ;; dunno?
+    (reduce bit-xor 899242490 (.-bits_ self)))
   IComparable
   (-compare [x y]
     (-compare x y)))
