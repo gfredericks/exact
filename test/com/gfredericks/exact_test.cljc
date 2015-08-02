@@ -13,7 +13,7 @@
 (def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9])
 
 (def gen-integer
-  (gen/bind gen/nat
+  (gen/bind (gen/scale #(* 2 %) gen/nat)
             (fn [digit-count]
               (gen/fmap (fn [[f the-digits]]
                           (f (exact/string->integer (apply str the-digits))))
@@ -114,11 +114,9 @@
         (and (-> x exact/numerator exact/integer?)
              (-> x exact/denominator exact/integer?)))))
 
-(defspec integer-serialization-roundtrip 100
+(defspec integer-serialization-roundtrip 200
   (prop/for-all [x gen-integer
-                 ;; Using max radix of 35 because of
-                 ;; https://github.com/google/closure-library/pull/498
-                 radix (gen/choose 2 35)]
+                 radix (gen/choose 2 36)]
     (-> x
         (exact/integer->string radix)
         (exact/string->integer radix)
