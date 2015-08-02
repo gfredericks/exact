@@ -6,7 +6,7 @@ arithmetic.
 ## Obtention
 
 ``` clojure
-[com.gfredericks/exact "0.1.7"]
+[com.gfredericks/exact "0.1.8"]
 ```
 
 ## License
