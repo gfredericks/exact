@@ -122,7 +122,7 @@
         (exact/string->integer radix)
         (= x))))
 
-(defspec quot-and-rem 100
+(defspec quot-and-rem 200
   (prop/for-all [x gen-integer
                  n (gen/fmap exact/abs gen-integer-nonzero)]
     (let [the-quot (exact/quot x n)
