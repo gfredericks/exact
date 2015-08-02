@@ -3,11 +3,11 @@
   (:refer-clojure :exclude [= -compare compare numerator denominator integer?
                             mod rem quot])
   (:require [cljs.core :as cljs]
-            [goog.math.Integer :as int]))
+            [com.gfredericks.goog.math.Integer :as int]))
 
 (defn integer?
   [x]
-  (instance? goog.math.Integer x))
+  (instance? com.gfredericks.goog.math.Integer x))
 
 (defprotocol Add
   (-add [x y]))
@@ -124,7 +124,7 @@
   ([n] (Ratio. n int/ONE))
   ([n d] (Ratio. n d)))
 
-(extend-type goog.math.Integer
+(extend-type com.gfredericks.goog.math.Integer
   Add
   (-add [x y] (-add-with-integer y x))
   AddWithInteger
