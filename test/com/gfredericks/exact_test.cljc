@@ -1,13 +1,10 @@
 (ns com.gfredericks.exact-test
-  (:require [#?(:clj clojure.test.check.clojure-test
-                :cljs cljs.test.check.cljs-test)
+  (:require [clojure.test.check.clojure-test
              #?(:clj :refer :cljs :refer-macros)
              [defspec]]
-            [#?(:clj clojure.test.check.generators
-                :cljs cljs.test.check.generators) :as gen]
-            [#?(:clj clojure.test.check.properties
-                :cljs cljs.test.check.properties) :as prop]
-            #?(:cljs [cljs.test.check])
+            [clojure.test.check.generators :as gen]
+            [clojure.test.check.properties :as prop]
+            #?(:cljs [clojure.test.check])
             [com.gfredericks.exact :as exact]))
 
 (def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9])
