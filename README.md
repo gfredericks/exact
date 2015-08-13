@@ -37,6 +37,42 @@ write code that uses bigints and ratios and it works in CLJS too.
 ;; => 1572584048032918633353217/1111984844349868137938112
 ```
 
+### Things in `com.gfredericks.exact`
+
+- `ZERO`
+- `ONE`
+- `+`
+- `-`
+- `*`
+- `/`
+- `zero?`
+- `inc`
+- `dec`
+- `<`
+- `>`
+- `<=`
+- `>=`
+- `max`
+- `min`
+- `min-key`
+- `max-key`
+- `pos?`
+- `neg?`
+- `numerator`
+- `denominator`
+- `integer?`
+- `ratio?`
+- `quot`
+- `mod`
+- `rem`
+- `abs`
+- `even?`
+- `odd?`
+- `string->integer`
+- `integer->string`
+- `native->integer`
+- `integer->native`
+
 ## Caveats
 
 Most of the functions are not designed to be used with native numbers,
