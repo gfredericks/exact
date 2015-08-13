@@ -1,13 +1,47 @@
 # exact
 
-A work-in-progress clojure library for doing portable exact
-arithmetic.
+A portable clojure library for doing exact arithmetic. I.e., you can
+write code that uses bigints and ratios and it works in CLJS too.
 
 ## Obtention
 
 ``` clojure
 [com.gfredericks/exact "0.1.8"]
 ```
+
+## Usage
+
+``` clojure
+(ns my.namespace
+  ;; here you can choose to exclude clojure's functions and use those
+  ;; from exact if you want it to look like normal arithmetic
+  (:require [com.gfredericks.exact :as e]))
+
+(def TWO (e/native->integer 2))
+(defn square [x] (e/* x x))
+(defn avg [a b] (-> a (e/+ b) (e// TWO)))
+
+(defn newtonian-square-root
+  "Returns a ratio between (- (sqrt x) epsilon) and (+ (sqrt x) epsilon)"
+  [x epsilon]
+  (let [ee (square epsilon)]
+    (loop [guess (avg x e/ZERO)]
+      (if (-> guess square (e/- x) e/abs (e/< ee))
+        guess
+        (recur (-> x (e// guess) (avg guess)))))))
+
+(def epsilon
+  (e// (e/string->integer "1000000000000000000000000")))
+
+(newtonian-square-root TWO epsilon)
+;; => 1572584048032918633353217/1111984844349868137938112
+```
+
+## Caveats
+
+Most of the functions are not designed to be used with native numbers,
+since this can be problematic in ClojureScript. To use it portably,
+you must create integers with `native->integer` or `string->integer`.
 
 ## License
 
