@@ -19,5 +19,5 @@
                 :output-to "target/cljs/node_dev/tests.js"
                 :output-dir "target/cljs/node_dev/out"
                 :source-map true}}]}
-  :profiles {:dev {:dependencies [[org.clojure/test.check "0.8.0-RC3"]]}}
+  :profiles {:dev {:dependencies [[org.clojure/test.check "0.8.1"]]}}
   :deploy-repositories [["releases" :clojars]])
