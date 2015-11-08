@@ -2,8 +2,8 @@
   (:require [clojure.test.check.clojure-test
              #?(:clj :refer :cljs :refer-macros)
              [defspec]]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]
+            [clojure.test.check.generators :as gen #?@(:cljs [:include-macros true])]
+            [clojure.test.check.properties :as prop #?@(:cljs [:include-macros true])]
             #?(:cljs [clojure.test.check])
             [com.gfredericks.exact :as exact]))
 
