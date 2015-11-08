@@ -10,19 +10,17 @@
 (def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9])
 
 (def gen-integer
-  (gen/bind (gen/scale #(* 2 %) gen/nat)
-            (fn [digit-count]
-              (gen/fmap (fn [[f the-digits]]
-                          (f (exact/string->integer (apply str the-digits))))
-                        (gen/tuple (gen/elements [exact/+ exact/-])
-                                   (gen/vector (gen/elements digits) (inc digit-count)))))))
+  (gen/let [digit-count (gen/scale #(* 2 %) gen/nat)
+            [f the-digits] (gen/tuple (gen/elements [exact/+ exact/-])
+                                      (gen/vector (gen/elements digits) (inc digit-count)))]
+    (f (exact/string->integer (apply str the-digits)))))
 
 (def gen-integer-nonzero
   (gen/such-that (complement exact/zero?) gen-integer))
 
 (def gen-ratio
-  (gen/fmap (fn [[n d]] (exact// n d))
-            (gen/tuple gen-integer gen-integer-nonzero)))
+  (gen/let [[n d] (gen/tuple gen-integer gen-integer-nonzero)]
+    (exact// n d)))
 
 (def gen-exact
   (gen/one-of [gen-integer gen-ratio]))
@@ -182,12 +180,11 @@
             (if (exact/pos? x) 1 0)))))
 
 (def gen-unique-numbers-via-group-by
-  (gen/fmap (fn [xs]
-              (->> xs
-                   (group-by identity)
-                   (vals)
-                   (map first)))
-            (gen/not-empty (gen/list gen-exact))))
+  (gen/let [xs (gen/not-empty (gen/list gen-exact))]
+    (->> xs
+         (group-by identity)
+         (vals)
+         (map first))))
 
 (defspec work-correctly-as-map-keys 50
   (prop/for-all [xs gen-unique-numbers-via-group-by]
