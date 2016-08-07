@@ -33,6 +33,13 @@
 (def gen-exact-nonzero
   (gen/such-that (complement exact/zero?) gen-exact))
 
+(defspec multiplication-distributes-over-addition 200
+  (prop/for-all [x gen-exact
+                 y gen-exact
+                 z gen-exact]
+    (= (exact/* x (exact/+ y z))
+       (exact/+ (exact/* x y) (exact/* x z)))))
+
 (defspec associativity-of-addition 100
   (prop/for-all [x gen-exact
                  y gen-exact
