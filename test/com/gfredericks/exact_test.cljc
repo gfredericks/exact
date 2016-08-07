@@ -1,5 +1,10 @@
 (ns com.gfredericks.exact-test
-  (:require [clojure.test.check.clojure-test
+  (:require [#?@(:clj
+                 [clojure.test :refer]
+                 :cljs
+                 [cljs.test :refer-macros])
+             [deftest is]]
+            [clojure.test.check.clojure-test
              #?(:clj :refer :cljs :refer-macros)
              [defspec]]
             [clojure.test.check.generators :as gen #?@(:cljs [:include-macros true])]
@@ -189,3 +194,10 @@
 (defspec work-correctly-as-map-keys 50
   (prop/for-all [xs gen-unique-numbers-via-group-by]
     (apply distinct? (map str xs))))
+
+(deftest closure-bug-703
+  (is (= "eea1c478f4683b323f0953c9c8e067e3967d97e7ed0bf05862cecac60f30077f170e480beee2cd0c1d5516764d58bc260cafe5705bc6b6df63cf4c057cb9f090"
+         (let [b (exact/string->integer
+                  "f729d763a14ecd55ffffebab43f388d0f7cbae584d3765d509b5557d6048ea0c"
+                  16)]
+           (exact/integer->string (exact/* b b) 16)))))
