@@ -12,13 +12,49 @@
             #?(:cljs [clojure.test.check])
             [com.gfredericks.exact :as exact]))
 
-(def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9])
+(def digits [\0 \1 \2 \3 \4 \5 \6 \7 \8 \9 \a \b \c \d \e \f])
+
+(defn gen-integer-with-digits
+  [base]
+  (gen/let [digit-count (gen/scale #(* 2 %) gen/nat)
+
+            [f the-digits]
+            (gen/tuple (gen/elements [exact/+ exact/-])
+                       (gen/vector (gen/elements (take base digits))
+                                   (inc digit-count)))]
+    (f (exact/string->integer (apply str the-digits) base))))
+
+(def word-max (apply * (repeat 32 2)))
+
+(def gen-word
+  (gen/let [[f x]
+            (gen/tuple (gen/elements [identity
+                                      #(- word-max % 1)])
+                       (gen/large-integer* {:min 0 :max (dec word-max)}))]
+    (exact/native->integer (f x))))
+
+;; generating with 32 bit words to make it more likely to catch
+;; js impl edge cases
+(def gen-integer-with-words*
+  (let [word-max (exact/native->integer word-max)]
+    (gen/let [word-count (gen/scale #(max % 10) gen/nat)
+              words (gen/vector gen-word word-count)]
+      (->> words
+           (reduce (fn [acc word]
+                     (-> acc
+                         (exact/* word-max)
+                         (exact/+ word)))
+                   exact/ZERO)))))
+
+(def gen-integer-with-words
+  (gen/let [[x f] (gen/tuple gen-integer-with-words*
+                             (gen/elements [exact/+ exact/-]))]
+    (f x)))
 
 (def gen-integer
-  (gen/let [digit-count (gen/scale #(* 2 %) gen/nat)
-            [f the-digits] (gen/tuple (gen/elements [exact/+ exact/-])
-                                      (gen/vector (gen/elements digits) (inc digit-count)))]
-    (f (exact/string->integer (apply str the-digits)))))
+  (gen/one-of [(gen-integer-with-digits 10)
+               (gen-integer-with-digits 16)
+               gen-integer-with-words]))
 
 (def gen-integer-nonzero
   (gen/such-that (complement exact/zero?) gen-integer))
@@ -33,10 +69,18 @@
 (def gen-exact-nonzero
   (gen/such-that (complement exact/zero?) gen-exact))
 
-(defspec multiplication-distributes-over-addition 200
+(defspec multiplication-distributes-over-addition 50
   (prop/for-all [x gen-exact
                  y gen-exact
                  z gen-exact]
+    (= (exact/* x (exact/+ y z))
+       (exact/+ (exact/* x y) (exact/* x z)))))
+
+(defspec integer-multiplication-distributes-over-addition 1000
+  ;; using integers makes this faster so we can run it more times
+  (prop/for-all [x gen-integer
+                 y gen-integer
+                 z gen-integer]
     (= (exact/* x (exact/+ y z))
        (exact/+ (exact/* x y) (exact/* x z)))))
 
