@@ -5,7 +5,7 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.89"]
-                 [com.gfredericks/goog-integer "1.0.0"]]
+                 [com.gfredericks/goog-integer "1.0.1"]]
 
   :plugins [[lein-cljsbuild "1.1.3"]]
   :cljsbuild
