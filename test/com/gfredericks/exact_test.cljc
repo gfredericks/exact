@@ -37,7 +37,7 @@
 ;; js impl edge cases
 (def gen-integer-with-words*
   (let [word-max (exact/native->integer word-max)]
-    (gen/let [word-count (gen/scale #(max % 10) gen/nat)
+    (gen/let [word-count (gen/scale #(/ % 5) gen/nat)
               words (gen/vector gen-word word-count)]
       (->> words
            (reduce (fn [acc word]
