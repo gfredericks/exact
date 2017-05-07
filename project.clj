@@ -20,4 +20,8 @@
                 :output-dir "target/cljs/node_dev/out"
                 :source-map true}}]}
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]]}}
+  :aliases {"circle-ci"
+            ["do"
+             ["test"]
+             ["cljsbuild" "once"]]}
   :deploy-repositories [["releases" :clojars]])

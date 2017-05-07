@@ -1,5 +1,7 @@
 # exact
 
+[![Circle CI](https://circleci.com/gh/gfredericks/exact.svg?style=svg)](https://circleci.com/gh/gfredericks/exact)
+
 A portable clojure library for doing exact arithmetic. I.e., you can
 write code that uses bigints and ratios and it works in CLJS too.
 
