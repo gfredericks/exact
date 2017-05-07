@@ -7,7 +7,7 @@
                  [org.clojure/clojurescript "1.9.89"]
                  [com.gfredericks/goog-integer "1.0.1"]]
 
-  :plugins [[lein-cljsbuild "1.1.3"]]
+  :plugins [[lein-cljsbuild "1.1.6"]]
   :cljsbuild
   {:builds
    [{:id "node-dev"
