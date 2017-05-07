@@ -4,10 +4,10 @@
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.clojure/clojurescript "1.9.89"]
+                 [org.clojure/clojurescript "1.9.89" #_"1.9.521"]
                  [com.gfredericks/goog-integer "1.0.1"]]
 
-  :plugins [[lein-cljsbuild "1.1.3"]]
+  :plugins [[lein-cljsbuild "1.1.6"]]
   :cljsbuild
   {:builds
    [{:id "node-dev"
@@ -20,4 +20,8 @@
                 :output-dir "target/cljs/node_dev/out"
                 :source-map true}}]}
   :profiles {:dev {:dependencies [[org.clojure/test.check "0.9.0"]]}}
+  :aliases {"circle-ci"
+            ["do"
+             ["test"]
+             ["cljsbuild" "once"]]}
   :deploy-repositories [["releases" :clojars]])
