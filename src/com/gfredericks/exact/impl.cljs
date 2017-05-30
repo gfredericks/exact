@@ -1,7 +1,7 @@
 (ns com.gfredericks.exact.impl
   "cljs impl."
   (:refer-clojure :exclude [= -compare compare numerator denominator integer?
-                            mod rem quot])
+                            mod rem quot even? odd?])
   (:require [cljs.core :as cljs]
             [com.gfredericks.goog.math.Integer :as int]))
 
@@ -231,6 +231,14 @@
   [x n]
   (let [y (rem x n)]
     (cond-> y (.isNegative y) (.add n))))
+
+(defn odd?
+  [n]
+  (.isOdd n))
+
+(defn even?
+  [n]
+  (not (.isOdd n)))
 
 (def two-to-fifty-three
   (apply * (repeat 53 2)))

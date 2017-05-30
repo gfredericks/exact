@@ -131,14 +131,13 @@
   [x]
   (cond-> x (neg? x) (-)))
 
-(let [TWO (+ ONE ONE)]
-  (defn even?
-    [n]
-    (zero? (mod n TWO)))
+(defn even?
+  [n]
+  (impl/even? n))
 
-  (defn odd?
-    [n]
-    (= ONE (mod n TWO))))
+(defn odd?
+  [n]
+  (impl/odd? n))
 
 (defn string->integer
   ([s] (string->integer s 10))

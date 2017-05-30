@@ -1,7 +1,7 @@
 (ns com.gfredericks.exact.impl
   "clj-jvm impl."
   (:refer-clojure :exclude [= compare numerator denominator integer? ratio?
-                            quot rem mod])
+                            quot rem mod even? odd?])
   (:import java.math.BigInteger))
 
 (defn ^:private exact?
@@ -72,6 +72,8 @@
 (def quot clojure.core/quot)
 (def mod clojure.core/mod)
 (def rem clojure.core/rem)
+(def even? clojure.core/even?)
+(def odd? clojure.core/odd?)
 
 (defn native-integer?
   [n]
