@@ -8,7 +8,7 @@ write code that uses bigints and ratios and it works in CLJS too.
 ## Obtention
 
 ``` clojure
-[com.gfredericks/exact "0.1.9"]
+[com.gfredericks/exact "0.1.10"]
 ```
 
 ## Usage
