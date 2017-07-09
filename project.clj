@@ -7,7 +7,9 @@
                  ;; cljs version 473 has compile warnings,
                  ;; and with 521 the tests won't run at all
                  [org.clojure/clojurescript "1.9.456"]
-                 [com.gfredericks/goog-integer "1.0.1"]]
+                 ;; need at least this version to avoid a couple
+                 ;; Integer bugs
+                 [org.clojure/google-closure-library "0.0-20170519-fa0499ef"]]
 
   :plugins [[lein-cljsbuild "1.1.6"]]
   :cljsbuild
