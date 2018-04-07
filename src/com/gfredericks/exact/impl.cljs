@@ -5,12 +5,41 @@
   (:require [cljs.core :as cljs]
             [goog.math.Integer :as int]))
 
-(defn integer?
+(def ^:private MAX_INTEGER (apply * (repeat 53 2)))
+(def ^:private MIN_INTEGER (- MAX_INTEGER))
+
+(def two-to-fifty-three
+  (apply * (repeat 53 2)))
+
+(def minus-two-to-fifty-three
+  (- two-to-fifty-three))
+
+(defn native-integer?
+  [num]
+  (and (number? num)
+       (cljs/integer? num)
+       (<= MIN_INTEGER num MAX_INTEGER)))
+
+(defn goog-integer?
   [x]
   (instance? goog.math.Integer x))
 
+(def integer? (some-fn goog-integer? native-integer?))
+
+(defn native->integer
+  [num]
+  {:pre [(native-integer? num)]}
+  (int/fromNumber num))
+
+(defn integer->native
+  [x]
+  {:post [(native-integer? %)]}
+  (.toNumber x))
+
 (defprotocol Add
   (-add [x y]))
+(defprotocol AddWithNative
+  (-add-with-native [x y]))
 (defprotocol AddWithInteger
   (-add-with-integer [x y]))
 (defprotocol AddWithRatio
@@ -18,6 +47,8 @@
 
 (defprotocol Multiply
   (-multiply [x y]))
+(defprotocol MultiplyWithNative
+  (-multiply-with-native [x y]))
 (defprotocol MultiplyWithInteger
   (-multiply-with-integer [x y]))
 (defprotocol MultiplyWithRatio
@@ -31,16 +62,32 @@
 
 (defprotocol Ordered
   (-compare [x y]))
+(defprotocol CompareToNative
+  (-compare-to-native [x y]))
 (defprotocol CompareToInteger
   (-compare-to-integer [x y]))
 (defprotocol CompareToRatio
   (-compare-to-ratio [x y]))
 
-(defn ^:private gcd
+(defn ^:private gcd-goog
   [x y]
   (if (.isZero y)
     x
     (recur y (.modulo x y))))
+
+(defn ^:private gcd-native
+  [x y]
+  (if (cljs/zero? y)
+    x
+    (recur y (cljs/mod x y))))
+
+(defn ^:private gcd
+  [x y]
+  (if (goog-integer? x)
+    (gcd-goog x (cond-> y (not (goog-integer? y)) native->integer))
+    (if (goog-integer? y)
+      (gcd-goog (native->integer x) y)
+      (gcd-native x y))))
 
 (declare -ratio)
 
@@ -66,6 +113,9 @@
 
   Add
   (-add [x y] (-add-with-ratio y x))
+  AddWithNative
+  (-add-with-native [x y]
+    (-add-with-integer x (native->integer y)))
   AddWithInteger
   (-add-with-integer [x y]
     (-add-with-ratio x (-ratio y)))
@@ -80,6 +130,9 @@
       (normalize (.divide n' the-gcd) (.divide d' the-gcd))))
   Multiply
   (-multiply [x y] (-multiply-with-ratio y x))
+  MultiplyWithNative
+  (-multiply-with-native [x y]
+    (-multiply-with-integer x (native->integer y)))
   MultiplyWithInteger
   (-multiply-with-integer [x y]
     (-multiply x (-ratio y)))
@@ -99,6 +152,9 @@
   Ordered
   (-compare [x y]
     (cljs/- (-compare-to-ratio y x)))
+  CompareToNative
+  (-compare-to-native [x y]
+    (-compare-to-integer x (native->integer y)))
   CompareToInteger
   (-compare-to-integer [x y]
     (-compare-to-ratio x (-ratio y)))
@@ -121,14 +177,16 @@
     (-compare x y)))
 
 (defn ^:private -ratio
-  ([n] (Ratio. n int/ONE))
+  ([n] (Ratio. n 1))
   ([n d] (Ratio. n d)))
 
 (extend-type goog.math.Integer
   Add
   (-add [x y] (-add-with-integer y x))
+  AddWithNative
+  (-add-with-native [x y]
+    (-add-with-integer x (native->integer y)))
   AddWithInteger
-
   (-add-with-integer [x y]
     (.add x y))
   AddWithRatio
@@ -137,6 +195,9 @@
   Multiply
   (-multiply [x y]
     (-multiply-with-integer y x))
+  MultiplyWithNative
+  (-multiply-with-native [x y]
+    (-multiply-with-integer x (native->integer y)))
   MultiplyWithInteger
   (-multiply-with-integer [x y]
     (.multiply x y))
@@ -146,9 +207,15 @@
   Negate
   (-negate [x] (.negate x))
   Invert
-  (-invert [x] (-ratio int/ONE x))
+  (-invert [x]
+    (if (.isZero x)
+      (throw (js/Error. "Divide by zero"))
+      (-ratio int/ONE x)))
   Ordered
   (-compare [x y] (cljs/- (-compare-to-integer y x)))
+  CompareToNative
+  (-compare-to-native [x y]
+    (-compare-to-integer x (native->integer y)))
   CompareToInteger
   (-compare-to-integer
     [x y]
@@ -171,9 +238,63 @@
   (-compare [x y]
     (-compare x y)))
 
+(extend-type number
+  Add
+  (-add [x y] (-add-with-native y x))
+  AddWithNative
+  (-add-with-native [x y]
+    (let [z (cljs/+ x y)]
+      (if (or (<= MAX_INTEGER z)
+              (<= z MIN_INTEGER))
+        (-add-with-integer (native->integer x)
+                           (native->integer y))
+        z)))
+  AddWithInteger
+  (-add-with-integer [x y]
+    (-add-with-integer (native->integer x) y))
+  AddWithRatio
+  (-add-with-ratio [x y]
+    (-add-with-ratio (-ratio x) y))
+  Multiply
+  (-multiply [x y]
+    (-multiply-with-native y x))
+  MultiplyWithNative
+  (-multiply-with-native [x y]
+    (let [z (cljs/* x y)]
+      (if (or (<= MAX_INTEGER z)
+              (<= z MIN_INTEGER))
+        (-multiply-with-integer (native->integer x)
+                                (native->integer y))
+        z)))
+  MultiplyWithInteger
+  (-multiply-with-integer [x y]
+    (-multiply-with-integer (native->integer x) y))
+  MultiplyWithRatio
+  (-multiply-with-ratio [x y]
+    (-multiply-with-ratio (-ratio x) y))
+  Negate
+  (-negate [x] (cljs/- x))
+  Invert
+  (-invert [x]
+    (if (cljs/zero? x)
+      (throw (js/Error. "Divide by zero"))
+      (-ratio 1 x)))
+  Ordered
+  (-compare [x y] (cljs/- (-compare-to-native y x)))
+  CompareToNative
+  (-compare-to-native [x y]
+    (cljs/compare x y))
+  CompareToInteger
+  (-compare-to-integer
+    [x y]
+    (-compare-to-integer (native->integer x) y))
+  CompareToRatio
+  (-compare-to-ratio
+    [x y]
+    (-compare-to-ratio (-ratio x) y)))
 
-(def ZERO int/ZERO)
-(def ONE int/ONE)
+(def ZERO 0)
+(def ONE 1)
 
 (defn ratio?
   [x]
@@ -220,46 +341,35 @@
 (defn quot
   [x n]
   {:pre [(integer? x) (integer? n)]}
-  (.divide x n))
+  (if (native-integer? x)
+    (if (native-integer? n)
+      (cljs/quot x n)
+      (.divide (native->integer x) n))
+    (.divide x (cond-> n (native-integer? n) native->integer))))
 
 (defn rem
   [x n]
   {:pre [(integer? x) (integer? n)]}
-  (.modulo x n))
+  (if (native-integer? x)
+    (if (native-integer? n)
+      (cljs/rem x n)
+      (.modulo (native->integer x) n))
+    (.modulo x (cond-> n (native-integer? n) native->integer))))
 
 (defn mod
   [x n]
   (let [y (rem x n)]
-    (cond-> y (.isNegative y) (.add n))))
+    (cond-> y (cljs/neg? (compare y 0))
+            (add n))))
 
 (defn odd?
   [n]
-  (.isOdd n))
+  (if (goog-integer? n)
+    (.isOdd n)
+    (cljs/odd? n)))
 
 (defn even?
   [n]
-  (not (.isOdd n)))
-
-(def two-to-fifty-three
-  (apply * (repeat 53 2)))
-
-(def minus-two-to-fifty-three
-  (- two-to-fifty-three))
-
-(defn native-integer?
-  [num]
-  (and (number? num)
-       (<= minus-two-to-fifty-three
-           num
-           two-to-fifty-three)
-       (cljs/integer? num)))
-
-(defn native->integer
-  [num]
-  {:pre [(native-integer? num)]}
-  (int/fromNumber num))
-
-(defn integer->native
-  [x]
-  {:post [(native-integer? %)]}
-  (.toNumber x))
+  (if (goog-integer? n)
+    (not (.isOdd n))
+    (cljs/even? n)))

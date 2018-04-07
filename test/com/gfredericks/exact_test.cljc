@@ -51,10 +51,17 @@
                              (gen/elements [exact/+ exact/-]))]
     (f x)))
 
+(def JS_MAX_INTEGER (apply * (repeat 53 2)))
+(def JS_MIN_INTEGER (- JS_MAX_INTEGER))
+
 (def gen-integer
-  (gen/one-of [(gen-integer-with-digits 10)
-               (gen-integer-with-digits 16)
-               gen-integer-with-words]))
+  (gen/let [n (gen/one-of [(gen-integer-with-digits 10)
+                           (gen-integer-with-digits 16)
+                           gen-integer-with-words])
+            nativeify? gen/boolean]
+    (cond-> n
+      (and nativeify? (exact/<= JS_MIN_INTEGER n JS_MAX_INTEGER))
+      exact/integer->native)))
 
 (def gen-integer-nonzero
   (gen/such-that (complement exact/zero?) gen-integer))
