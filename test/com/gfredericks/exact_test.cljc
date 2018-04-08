@@ -58,10 +58,14 @@
   (gen/let [n (gen/one-of [(gen-integer-with-digits 10)
                            (gen-integer-with-digits 16)
                            gen-integer-with-words])
-            nativeify? gen/boolean]
-    (cond-> n
-      (and nativeify? (exact/<= JS_MIN_INTEGER n JS_MAX_INTEGER))
-      exact/integer->native)))
+            type-flip? gen/boolean]
+    (if type-flip?
+      (if (number? n)
+        (exact/native->integer n)
+        (cond-> n
+          (exact/<= JS_MIN_INTEGER n JS_MAX_INTEGER)
+          exact/integer->native))
+      n)))
 
 (def gen-integer-nonzero
   (gen/such-that (complement exact/zero?) gen-integer))
@@ -135,11 +139,11 @@
 
 (defspec x-plus-minus-x-is-zero 100
   (prop/for-all [x gen-exact]
-    (-> x exact/- (exact/+ x) (= exact/ZERO))))
+    (-> x exact/- (exact/+ x) (exact/zero?))))
 
 (defspec x-times-one-over-x-is-one 100
   (prop/for-all [x gen-exact-nonzero]
-    (-> x exact// (exact/* x) (= exact/ONE))))
+    (-> x exact// (exact/* x) (exact/= exact/ONE))))
 
 (defspec x-times-x-is-non-negative 100
   (prop/for-all [x gen-exact]
@@ -150,14 +154,14 @@
     (let [x (-> x exact/abs exact/inc)]
       (-> (exact// (exact/inc x) x)
           (exact/numerator)
-          (= (exact/inc x))))))
+          (exact/= (exact/inc x))))))
 
 (defspec denominator-works 100
   (prop/for-all [x gen-integer-nonzero]
     (let [x (-> x exact/abs exact/inc)]
       (-> (exact// (exact/inc x) x)
           (exact/denominator)
-          (= x)))))
+          (exact/= x)))))
 
 (defspec integer-and-ratio-work 100
   (prop/for-all [x gen-exact]
@@ -178,14 +182,14 @@
     (-> x
         (exact/integer->string radix)
         (exact/string->integer radix)
-        (= x))))
+        (exact/= x))))
 
 (defspec quot-and-rem 200
   (prop/for-all [x gen-integer
                  n (gen/fmap exact/abs gen-integer-nonzero)]
     (let [the-quot (exact/quot x n)
           the-rem (exact/rem x n)]
-      (= x (exact/+ the-rem (exact/* the-quot n))))))
+      (exact/= x (exact/+ the-rem (exact/* the-quot n))))))
 
 (defspec mod-never-negative 100
   (prop/for-all [x gen-integer
@@ -222,7 +226,7 @@
 (defspec IComparable-impl-works 100
   (prop/for-all [xs (gen/list gen-exact)]
     (->> xs
-         (sort)
+         (sort exact/<)
          (partition 2 1)
          (every? (fn [[x y]]
                    (exact/<= x y))))))

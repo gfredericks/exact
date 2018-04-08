@@ -81,100 +81,108 @@
     x
     (recur y (cljs/mod x y))))
 
-(defn ^:private gcd
-  [x y]
-  (if (goog-integer? x)
-    (gcd-goog x (cond-> y (not (goog-integer? y)) native->integer))
-    (if (goog-integer? y)
-      (gcd-goog (native->integer x) y)
-      (gcd-native x y))))
-
 (declare -ratio)
+
+(defn auto-promote
+  [native-fn goog-fn x y]
+  (if (goog-integer? x)
+    (if (goog-integer? y)
+      (goog-fn x y)
+      (goog-fn x (native->integer y)))
+    (if (goog-integer? y)
+      (goog-fn (native->integer x) y)
+      (native-fn x y))))
 
 (defn ^:private normalize
   [n d]
-  (if (.isNegative d)
-    (let [n' (.negate n)
-          d' (.negate d)]
-      (if (.equals d' int/ONE)
+  (if (cljs/neg? (-compare d 0))
+    (let [n' (-negate n)
+          d' (-negate d)]
+      (if (cljs/zero? (-compare d' 1))
         n'
         (-ratio n' d')))
-    (if (.equals d int/ONE)
+    (if (cljs/zero? (-compare d int/ONE))
       n
       (-ratio n d))))
 
 (deftype Ratio
-  ;; "Ratios should not be constructed directly by user code; we assume n and d are
-  ;;  canonical; i.e., they are coprime and at most n is negative."
-  [n d]
-  Object
-  (toString [_]
-    (str "#ratio [" n " " d "]"))
+    ;; "Ratios should not be constructed directly by user code; we assume n and d are
+    ;;  canonical; i.e., they are coprime and at most n is negative."
+    [n d]
+    Object
+    (toString [_]
+      (str "#ratio [" n " " d "]"))
 
-  Add
-  (-add [x y] (-add-with-ratio y x))
-  AddWithNative
-  (-add-with-native [x y]
-    (-add-with-integer x (native->integer y)))
-  AddWithInteger
-  (-add-with-integer [x y]
-    (-add-with-ratio x (-ratio y)))
-  AddWithRatio
-  (-add-with-ratio [x y]
-    (let [+ -add-with-integer
-          * -multiply-with-integer
-          n' (+ (* (.-n x) (.-d y))
-                (* (.-d x) (.-n y)))
-          d' (* (.-d x) (.-d y))
-          the-gcd (gcd n' d')]
-      (normalize (.divide n' the-gcd) (.divide d' the-gcd))))
-  Multiply
-  (-multiply [x y] (-multiply-with-ratio y x))
-  MultiplyWithNative
-  (-multiply-with-native [x y]
-    (-multiply-with-integer x (native->integer y)))
-  MultiplyWithInteger
-  (-multiply-with-integer [x y]
-    (-multiply x (-ratio y)))
-  MultiplyWithRatio
-  (-multiply-with-ratio [x y]
-    (let [* -multiply-with-integer
-          n' (* (.-n x) (.-n y))
-          d' (* (.-d x) (.-d y))
-          the-gcd (gcd n' d')]
-      (normalize (.divide n' the-gcd) (.divide d' the-gcd))))
-  Negate
-  (-negate [x]
-    (Ratio. (-negate n) d))
-  Invert
-  (-invert [x]
-    (normalize d n))
-  Ordered
-  (-compare [x y]
-    (cljs/- (-compare-to-ratio y x)))
-  CompareToNative
-  (-compare-to-native [x y]
-    (-compare-to-integer x (native->integer y)))
-  CompareToInteger
-  (-compare-to-integer [x y]
-    (-compare-to-ratio x (-ratio y)))
-  CompareToRatio
-  (-compare-to-ratio [x y]
-    (let [* -multiply-with-integer]
-      (-compare-to-integer (* (.-n x) (.-d y))
-                           (* (.-n y) (.-d x)))))
+    Add
+    (-add [x y] (-add-with-ratio y x))
+    AddWithNative
+    (-add-with-native [x y]
+      (-add-with-integer x (native->integer y)))
+    AddWithInteger
+    (-add-with-integer [x y]
+      (-add-with-ratio x (-ratio y)))
+    ;; okay so the problem is all this hard-coded goog stuff in all of
+    ;; these functions
+    AddWithRatio
+    (-add-with-ratio [x y]
+      (let [+ -add
+            * -multiply
+            n' (+ (* (.-n x) (.-d y))
+                  (* (.-d x) (.-n y)))
+            d' (* (.-d x) (.-d y))
+            the-gcd (auto-promote gcd-native gcd-goog n' d')
+            divide (partial auto-promote cljs/quot #(.divide %1 %2))]
+        (normalize (divide n' the-gcd)
+                   (divide d' the-gcd))))
+    Multiply
+    (-multiply [x y] (-multiply-with-ratio y x))
+    MultiplyWithNative
+    (-multiply-with-native [x y]
+      (-multiply-with-integer x (native->integer y)))
+    MultiplyWithInteger
+    (-multiply-with-integer [x y]
+      (-multiply x (-ratio y)))
+    MultiplyWithRatio
+    (-multiply-with-ratio [x y]
+      (let [* -multiply
+            n' (* (.-n x) (.-n y))
+            d' (* (.-d x) (.-d y))
+            the-gcd (auto-promote gcd-native gcd-goog n' d')
+            divide (partial auto-promote cljs/quot #(.divide %1 %2))]
+        (normalize (divide n' the-gcd)
+                   (divide d' the-gcd))))
+    Negate
+    (-negate [x]
+      (Ratio. (-negate n) d))
+    Invert
+    (-invert [x]
+      (normalize d n))
+    Ordered
+    (-compare [x y]
+      (cljs/- (-compare-to-ratio y x)))
+    CompareToNative
+    (-compare-to-native [x y]
+      (-compare-to-integer x (native->integer y)))
+    CompareToInteger
+    (-compare-to-integer [x y]
+      (-compare-to-ratio x (-ratio y)))
+    CompareToRatio
+    (-compare-to-ratio [x y]
+      (let [* -multiply]
+        (-compare (* (.-n x) (.-d y))
+                  (* (.-n y) (.-d x)))))
 
-  IEquiv
-  (-equiv [_ other]
-    (and (instance? Ratio other)
-         (cljs/= n (.-n other))
-         (cljs/= d (.-d other))))
-  IHash
-  (-hash [_]
-    (bit-xor 124790411 (-hash n) (-hash d)))
-  IComparable
-  (-compare [x y]
-    (-compare x y)))
+    IEquiv
+    (-equiv [_ other]
+      (and (instance? Ratio other)
+           (cljs/= n (.-n other))
+           (cljs/= d (.-d other))))
+    IHash
+    (-hash [_]
+      (bit-xor 124790411 (-hash n) (-hash d)))
+    IComparable
+    (-compare [x y]
+      (-compare x y)))
 
 (defn ^:private -ratio
   ([n] (Ratio. n 1))
