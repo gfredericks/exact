@@ -146,7 +146,10 @@
   Negate
   (-negate [x] (.negate x))
   Invert
-  (-invert [x] (-ratio int/ONE x))
+  (-invert [x]
+    (if (.isZero x)
+      (throw (new js/Error "Divide by zero"))
+      (-ratio int/ONE x)))
   Ordered
   (-compare [x y] (cljs/- (-compare-to-integer y x)))
   CompareToInteger

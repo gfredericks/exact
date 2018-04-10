@@ -252,3 +252,8 @@
                   "f729d763a14ecd55ffffebab43f388d0f7cbae584d3765d509b5557d6048ea0c"
                   16)]
            (exact/integer->string (exact/* b b) 16)))))
+
+(deftest inversion-of-0-bug
+  (is (thrown-with-msg? #?(:clj ArithmeticException :cljs js/Error)
+                        #"Divide by zero"
+                        (exact// exact/ZERO))))
