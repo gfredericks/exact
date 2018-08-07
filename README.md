@@ -5,6 +5,8 @@
 A portable clojure library for doing exact arithmetic. I.e., you can
 write code that uses bigints and ratios and it works in CLJS too.
 
+Note: there are no BigDecimals in the Exact library, in the same way that there are no decimals in exact arithmetic. In other words, there's no way to convert `2.2` (or `2.2M`) to an Exact representation.
+
 ## Obtention
 
 ``` clojure
