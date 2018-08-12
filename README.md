@@ -3,7 +3,11 @@
 [![Circle CI](https://circleci.com/gh/gfredericks/exact.svg?style=svg)](https://circleci.com/gh/gfredericks/exact)
 
 A portable clojure library for doing exact arithmetic. I.e., you can
-write code that uses bigints and ratios and it works in CLJS too.
+write code that uses bigints and ratios and it works in CLJS too. 
+
+Note that bigdecimals are *not* included; though generally all 
+bigdecimal values can be represented as integers or ratios, the 
+arithmetic is fairly different.
 
 ## Obtention
 
