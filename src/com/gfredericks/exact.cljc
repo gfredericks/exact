@@ -2,7 +2,7 @@
   (:refer-clojure :exclude [+ - * / = < > <= >= zero? inc dec
                             min max min-key max-key pos? neg?
                             numerator denominator integer? ratio?
-                            mod rem quot even? odd?])
+                            mod rem quot even? odd? abs])
   (:require [#?(:clj clojure.core :cljs cljs.core) :as core]
             [com.gfredericks.exact.impl :as impl]))
 
