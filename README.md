@@ -12,7 +12,7 @@ arithmetic is fairly different.
 ## Obtention
 
 ``` clojure
-[com.gfredericks/exact "0.1.11"]
+[com.gfredericks/exact "0.1.12"]
 ```
 
 ## Usage
