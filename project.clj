@@ -5,8 +5,6 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.12.4"]
                  [org.clojure/clojurescript "1.12.134"]
-                 ;; need at least this version to avoid a couple
-                 ;; Integer bugs
                  [org.clojure/google-closure-library "0.0-20250515-87401eb8"]]
   :plugins [[lein-cljsbuild "1.1.8"]]
   :cljsbuild
